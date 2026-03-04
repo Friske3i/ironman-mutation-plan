@@ -1216,8 +1216,14 @@ function renderTargetNeeds() {
     for (const row of rows) {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "need-chip";
-      button.textContent = `${row.name} 要求量${row.required} / 供給量${row.supplied}`;
+      const comparisonClass =
+        row.required > row.supplied
+          ? "need-chip-shortage"
+          : row.required === row.supplied
+            ? "need-chip-balanced"
+            : "need-chip-surplus";
+      button.className = `need-chip ${comparisonClass}`;
+      button.textContent = `${row.name} 不足: ${row.required} / 供給: ${row.supplied}`;
       button.addEventListener("click", () => focusMaterialsForMutation(row.mutationId));
       chips.appendChild(button);
     }
