@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ironman Mutation Planner</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>Ironman Mutation Planner</h1>
+      <div class="actions">
+        <button id="nodeUndoBtn" title="ノード編集 Undo">Undo</button>
+        <button id="nodeRedoBtn" title="ノード編集 Redo">Redo</button>
+        <button id="addNodeBtn">ノード追加</button>
+        <button id="openGridBtn">盤面編集</button>
+        <button id="openEdgeBtn">接続設定</button>
+        <button id="openDemandBtn">需要供給</button>
+        <button id="saveBtn">保存</button>
+        <button id="loadBtn">読込</button>
+        <button id="resetBtn">リセット</button>
+      </div>
+    </header>
+
+    <main class="workspace split">
+      <section class="panel node-workspace">
+        <h2>ノードエディタ</h2>
+        <p class="workspace-caption">ノードをドラッグで移動 / 右クリックで接続開始 / 接続先ノードをクリックで確定 / エッジクリックで設定編集</p>
+        <div id="nodeCanvas" class="node-canvas main"></div>
+      </section>
+
+      <aside class="panel inspector">
+        <h2>インスペクタ</h2>
+        <div id="inspectorNodeName" class="inspector-name editable" contenteditable="false" spellcheck="false">未選択</div>
+        <div class="placement-form">
+          <label for="inspectorRepeatCount">リピート数</label>
+          <input id="inspectorRepeatCount" type="number" min="1" step="1" value="1" />
+        </div>
+        <div class="edge-actions">
+          <button id="inspectorEditGridBtn">盤面編集へ</button>
+          <button id="inspectorDeleteNodeBtn">ノード削除</button>
+        </div>
+
+        <section id="inspectorIoSection">
+          <h3>必要素材</h3>
+          <div id="inspectorInputs" class="io-block-list"></div>
+
+          <h3>供給素材</h3>
+          <div id="inspectorOutputs" class="io-block-list"></div>
+        </section>
+
+        <section id="inspectorEdgeSection" class="inspector-edge hidden">
+          <h3>選択エッジ設定</h3>
+          <div id="inspectorEdgeName" class="inspector-name editable" contenteditable="false" spellcheck="false">未選択</div>
+          <div id="inspectorEdgeHint" class="edge-transfer-hint">接続元の供給可能作物を、接続先へどれだけ送るか設定します。</div>
+          <div id="inspectorEdgeSliders" class="edge-transfer-list"></div>
+          <div class="edge-actions">
+            <button id="inspectorDeleteEdgeBtn">削除</button>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <div id="gridPanel" class="overlay hidden">
+      <section class="overlay-card large">
+        <div class="overlay-header">
+          <h2>盤面編集</h2>
+          <div class="overlay-header-actions">
+            <button id="gridCancelBtn" type="button">キャンセル</button>
+            <button id="gridApplyBtn" type="button">適用</button>
+          </div>
+        </div>
+        <div class="overlay-grid-layout">
+          <div class="panel overlay-side">
+            <h3>作物パレット</h3>
+            <input id="searchInput" class="ui-input" type="text" placeholder="名前で検索" />
+            <div id="selectedInfo" class="selected-info">選択: なし</div>
+            <div id="palette" class="palette"></div>
+          </div>
+          <div class="panel overlay-main">
+            <div class="grid-toolbar">
+              <div id="activeNodeInfo" class="mode-info">編集ノード: なし</div>
+              <div id="modeInfo" class="mode-info">モード: 配置</div>
+              <div class="grid-toolbar-actions">
+                <button id="gridUndoBtn" type="button" title="盤面編集 Undo">↶</button>
+                <button id="gridRedoBtn" type="button" title="盤面編集 Redo">↷</button>
+                <button id="toggleDeleteBtn" type="button" title="破壊モード切替">🗑️</button>
+                <button id="clearGridBtn" type="button" title="全破壊">✖</button>
+              </div>
+            </div>
+            <div class="role-helper">次に配置する作物の role を選択</div>
+            <div class="placement-form">
+              <label>Role</label>
+              <div id="rolePicker" class="role-picker" role="group" aria-label="Role picker">
+                <button type="button" class="role-chip active" data-role="material">material</button>
+                <button type="button" class="role-chip" data-role="intermediate">intermediate</button>
+              </div>
+              <select id="roleSelect" class="hidden" aria-hidden="true" tabindex="-1">
+                <option value="material" selected>material</option>
+                <option value="intermediate">intermediate</option>
+              </select>
+            </div>
+            <div class="role-legend">
+              <span><i class="role-dot material"></i>material</span>
+              <span><i class="role-dot intermediate"></i>intermediate</span>
+            </div>
+            <div class="grid-host">
+              <div id="grid" class="grid"></div>
+            </div>
+          </div>
+          <aside class="panel overlay-right">
+            <section class="target-needs">
+              <h3>接続先への供給設定</h3>
+              <ul id="targetNeedsList" class="inspector-list"></ul>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </div>
+
+    <div id="edgePanel" class="overlay hidden">
+      <section class="overlay-card">
+        <div class="overlay-header">
+          <h2>接続設定</h2>
+          <button id="closeEdgeBtn">閉じる</button>
+        </div>
+        <div class="node-editor">
+          <div>
+            <label>ノード</label>
+            <select id="nodeSelect"></select>
+          </div>
+          <div class="edge-form">
+            <label>From</label>
+            <select id="edgeFrom"></select>
+            <label>To</label>
+            <select id="edgeTo"></select>
+            <label>Mode</label>
+            <select id="edgeMode">
+              <option value="fixed">fixed</option>
+              <option value="ratio">ratio</option>
+            </select>
+            <label>fixedSupply</label>
+            <input id="fixedSupply" type="number" min="0" step="1" value="0" />
+            <label>ratio</label>
+            <input id="ratio" type="number" min="0" max="1" step="0.01" value="0" />
+            <button id="addEdgeBtn">エッジ追加/更新</button>
+          </div>
+          <div>
+            <h3>エッジ一覧</h3>
+            <ul id="edgeList" class="edge-list"></ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="demandPanel" class="overlay hidden">
+      <section class="overlay-card">
+        <div class="overlay-header">
+          <h2>需要供給</h2>
+          <button id="closeDemandBtn">閉じる</button>
+        </div>
+        <div id="estimate" class="estimate"></div>
+        <div id="warnings" class="warnings"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>作物</th>
+              <th>Tier</th>
+              <th>Required</th>
+              <th>Supplied</th>
+              <th>Shortage</th>
+              <th>Surplus</th>
+            </tr>
+          </thead>
+          <tbody id="demandBody"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <input id="projectFileInput" type="file" accept="application/json,.json" class="hidden" />
+  </body>
+</html>

@@ -1,0 +1,777 @@
+{
+  "mutations": [
+    {
+      "id": 0,
+      "name": "Brown Mushroom",
+      "size": 1,
+      "image": "assets/Brown_Mushroom.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 1,
+      "name": "Red Mushroom",
+      "size": 1,
+      "image": "assets/Red_Mushroom.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 2,
+      "name": "Cactus",
+      "size": 1,
+      "image": "assets/Cactus.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 3,
+      "name": "Carrot",
+      "size": 1,
+      "image": "assets/Carrot.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 4,
+      "name": "Cocoa Beans",
+      "size": 1,
+      "image": "assets/Cocoa_Beans.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 5,
+      "name": "Melon Seeds",
+      "size": 1,
+      "image": "assets/Melon_Slice.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 6,
+      "name": "Pumpkin",
+      "size": 1,
+      "image": "assets/Pumpkin.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 7,
+      "name": "Wheat Seeds",
+      "size": 1,
+      "image": "assets/Wheat.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 8,
+      "name": "Potato",
+      "size": 1,
+      "image": "assets/Potato.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 9,
+      "name": "Nether Wart",
+      "size": 1,
+      "image": "assets/Nether_Wart.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 10,
+      "name": "Wild Rose",
+      "size": 1,
+      "image": "assets/Rose_Bush.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 11,
+      "name": "Sunflower",
+      "size": 1,
+      "image": "assets/Sunflower.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 12,
+      "name": "Moonflower",
+      "size": 1,
+      "image": "assets/Blue_Orchid.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 13,
+      "name": "Sugar Cane",
+      "size": 1,
+      "image": "assets/Sugar_Cane.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 14,
+      "name": "Dead Plants",
+      "size": 1,
+      "image": "assets/Dead_Bush.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 15,
+      "name": "Fire",
+      "size": 1,
+      "image": "assets/Fire.gif",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 16,
+      "name": "Ashwreath",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 9,
+          "amount": 2
+        },
+        {
+          "id": 15,
+          "amount": 2
+        }
+      ],
+      "image": "assets/Ashwreath.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 17,
+      "name": "Choconut",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 4,
+          "amount": 2
+        }
+      ],
+      "image": "assets/Choconut.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 18,
+      "name": "Dustgrain",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 7,
+          "amount": 2
+        }
+      ],
+      "image": "assets/Dustgrain.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 19,
+      "name": "Gloomgourd",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 5,
+          "amount": 1
+        },
+        {
+          "id": 6,
+          "amount": 1
+        }
+      ],
+      "image": "assets/Gloomgourd.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 20,
+      "name": "Lonelily",
+      "size": 1,
+      "image": "assets/Lonelily.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 21,
+      "name": "Scourroot",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 3,
+          "amount": 1
+        },
+        {
+          "id": 8,
+          "amount": 1
+        }
+      ],
+      "image": "assets/Scourroot.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 22,
+      "name": "Shadevine",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 2,
+          "amount": 1
+        },
+        {
+          "id": 13,
+          "amount": 1
+        }
+      ],
+      "image": "assets/Shadevine.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 23,
+      "name": "Veilshroom",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 0,
+          "amount": 1
+        },
+        {
+          "id": 1,
+          "amount": 1
+        }
+      ],
+      "image": "assets/Veilshroom.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 24,
+      "name": "Witherbloom",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 14,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Witherbloom.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 25,
+      "name": "Chocoberry",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 17,
+          "amount": 6
+        },
+        {
+          "id": 19,
+          "amount": 2
+        }
+      ],
+      "image": "assets/Chocoberry.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 26,
+      "name": "Cindershade",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 16,
+          "amount": 4
+        },
+        {
+          "id": 24,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Cindershade.webp",
+      "maxGrowthStage": 8
+    },
+    {
+      "id": 27,
+      "name": "Coalroot",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 16,
+          "amount": 5
+        },
+        {
+          "id": 21,
+          "amount": 3
+        }
+      ],
+      "image": "assets/Coalroot.webp",
+      "maxGrowthStage": 8
+    },
+    {
+      "id": 28,
+      "name": "Creambloom",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 17,
+          "amount": 8
+        }
+      ],
+      "image": "assets/Creambloom.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 29,
+      "name": "Duskbloom",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 11,
+          "amount": 2
+        },
+        {
+          "id": 12,
+          "amount": 2
+        },
+        {
+          "id": 18,
+          "amount": 2
+        },
+        {
+          "id": 22,
+          "amount": 2
+        }
+      ],
+      "image": "assets/Duskbloom.webp",
+      "maxGrowthStage": 8
+    },
+    {
+      "id": 30,
+      "name": "Thornshade",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 10,
+          "amount": 4
+        },
+        {
+          "id": 23,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Thornshade.webp",
+      "maxGrowthStage": 8
+    },
+    {
+      "id": 31,
+      "name": "Blastberry",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 16,
+          "amount": 3
+        },
+        {
+          "id": 25,
+          "amount": 5
+        }
+      ],
+      "image": "assets/Blastberry.webp",
+      "maxGrowthStage": 6
+    },
+    {
+      "id": 32,
+      "name": "Fermento",
+      "size": 1,
+      "image": "assets/Fermento.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 33,
+      "name": "Cheesebite",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 28,
+          "amount": 4
+        },
+        {
+          "id": 32,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Cheesebite.webp",
+      "maxGrowthStage": 10
+    },
+    {
+      "id": 34,
+      "name": "Chloronite",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 27,
+          "amount": 6
+        },
+        {
+          "id": 30,
+          "amount": 2
+        }
+      ],
+      "image": "assets/Chloronite.webp",
+      "maxGrowthStage": 10
+    },
+    {
+      "id": 35,
+      "name": "Do-not-eat-shroom",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 21,
+          "amount": 4
+        },
+        {
+          "id": 23,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Do-not-eat-shroom.webp",
+      "maxGrowthStage": 8
+    },
+    {
+      "id": 36,
+      "name": "Fleshtrap",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 20,
+          "amount": 4
+        },
+        {
+          "id": 26,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Fleshtrap.webp",
+      "maxGrowthStage": 14
+    },
+    {
+      "id": 37,
+      "name": "Magic Jellybean",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 13,
+          "amount": 5
+        },
+        {
+          "id": 29,
+          "amount": 3
+        }
+      ],
+      "image": "assets/Magic_Jellybean.webp",
+      "maxGrowthStage": 120,
+      "specialEffect": "magic_jerrybean"
+    },
+    {
+      "id": 38,
+      "name": "Noctilume",
+      "size": 2,
+      "conditions": [
+        {
+          "id": 20,
+          "amount": 6
+        },
+        {
+          "id": 29,
+          "amount": 6
+        }
+      ],
+      "image": "assets/Noctilume.webp",
+      "maxGrowthStage": 4
+    },
+    {
+      "id": 39,
+      "name": "Snoozling",
+      "size": 3,
+      "conditions": [
+        {
+          "id": 18,
+          "amount": 3
+        },
+        {
+          "id": 24,
+          "amount": 3
+        },
+        {
+          "id": 28,
+          "amount": 4
+        },
+        {
+          "id": 29,
+          "amount": 3
+        },
+        {
+          "id": 30,
+          "amount": 3
+        }
+      ],
+      "image": "assets/Snoozling.webp",
+      "maxGrowthStage": 20
+    },
+    {
+      "id": 40,
+      "name": "Soggybud",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 5,
+          "amount": 2
+        },
+        {
+          "id": 19,
+          "amount": 2
+        }
+      ],
+      "image": "assets/Soggybud.webp",
+      "maxGrowthStage": 10
+    },
+    {
+      "id": 41,
+      "name": "Chorus Fruit",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 34,
+          "amount": 5
+        },
+        {
+          "id": 37,
+          "amount": 3
+        }
+      ],
+      "image": "assets/Chorus_Fruit.webp",
+      "maxGrowthStage": 12
+    },
+    {
+      "id": 42,
+      "name": "PlantBoy Advance",
+      "size": 2,
+      "conditions": [
+        {
+          "id": 39,
+          "amount": 6
+        },
+        {
+          "id": 47,
+          "amount": 6
+        }
+      ],
+      "image": "assets/PlantBoy_Advance.webp",
+      "maxGrowthStage": 12
+    },
+    {
+      "id": 43,
+      "name": "Puffercloud",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 35,
+          "amount": 6
+        },
+        {
+          "id": 39,
+          "amount": 2
+        }
+      ],
+      "image": "assets/Puffercloud.webp",
+      "maxGrowthStage": 14
+    },
+    {
+      "id": 44,
+      "name": "Shellfruit",
+      "size": 1,      
+      "image": "assets/Shellfruit.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 45,
+      "name": "Startlevine",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 31,
+          "amount": 4
+        },
+        {
+          "id": 33,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Startlevine.webp",
+      "maxGrowthStage": 12
+    },
+    {
+      "id": 46,
+      "name": "Stoplight Petal",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 38,
+          "amount": 4
+        },
+        {
+          "id": 39,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Stoplight_Petal.webp",
+      "maxGrowthStage": 12
+    },
+    {
+      "id": 47,
+      "name": "Thunderling",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 38,
+          "amount": 3
+        },
+        {
+          "id": 40,
+          "amount": 5
+        }
+      ],
+      "image": "assets/Thunderling.webp",
+      "maxGrowthStage": 16
+    },
+    {
+      "id": 48,
+      "name": "Turtlellini",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 17,
+          "amount": 4
+        },
+        {
+          "id": 40,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Turtlellini.webp",
+      "maxGrowthStage": 0
+    },
+    {
+      "id": 49,
+      "name": "Zombud",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 14,
+          "amount": 4
+        },
+        {
+          "id": 26,
+          "amount": 2
+        },
+        {
+          "id": 36,
+          "amount": 2
+        }
+      ],
+      "image": "assets/Zombud.webp",
+      "maxGrowthStage": 16
+    },
+    {
+      "id": 50,
+      "name": "All-in Aloe",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 37,
+          "amount": 6
+        },
+        {
+          "id": 42,
+          "amount": 2
+        }
+      ],
+      "image": "assets/All-in_Aloe.webp",
+      "maxGrowthStage": 27
+    },
+    {
+      "id": 51,
+      "name": "Devourer",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 43,
+          "amount": 4
+        },
+        {
+          "id": 49,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Devourer.webp",
+      "maxGrowthStage": 16
+    },
+    {
+      "id": 52,
+      "name": "Glasscorn",
+      "size": 2,
+      "conditions": [
+        {
+          "id": 34,
+          "amount": 6
+        },
+        {
+          "id": 45,
+          "amount": 6
+        }
+      ],
+      "image": "assets/Glasscorn.webp",
+      "maxGrowthStage": 9,
+      "specialEffect": "glasscorn"
+    },
+    {
+      "id": 53,
+      "name": "Godseed",
+      "size": 3,
+      "image": "assets/Godseed.webp",
+      "maxGrowthStage": 40
+    },
+    {
+      "id": 54,
+      "name": "Jerryflower",
+      "size": 1,
+      "image": "assets/Jerryflower.webp",
+      "maxGrowthStage": 10
+    },
+    {
+      "id": 55,
+      "name": "Phantomleaf",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 41,
+          "amount": 4
+        },
+        {
+          "id": 44,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Phantomleaf.webp",
+      "maxGrowthStage": 15
+    },
+    {
+      "id": 56,
+      "name": "Timestalk",
+      "size": 1,
+      "conditions": [
+        {
+          "id": 41,
+          "amount": 2
+        },
+        {
+          "id": 44,
+          "amount": 2
+        },
+        {
+          "id": 46,
+          "amount": 4
+        }
+      ],
+      "image": "assets/Timestalk.webp",
+      "maxGrowthStage": 14
+    }
+  ]
+}
