@@ -671,6 +671,7 @@ function openGridEditor() {
   const active = getActiveNode();
   if (!active) return;
   state.gridDraft = createNodeDraftSnapshot(active);
+  renderTargetNeeds();
   setPanelOpen(dom.gridPanel, true);
 }
 
@@ -1017,6 +1018,7 @@ const nodeCanvasHandlers = {
     renderGridCells(state, dom, getPlacementAt);
     renderNodeCanvas(state, dom, nodeCanvasHandlers);
     renderEdgeList(state, dom, edgeHandlers);
+    renderTargetNeeds();
     renderInspector();
   },
   onNodeMove(nodeId, x, y, commit) {
@@ -1171,12 +1173,13 @@ function renderTargetNeeds() {
     const toNode = state.planNodes.find((node) => node.nodeId === edge.toNodeId);
     if (!toNode) continue;
     const io = computeNodeIO(toNode);
+    const incomingToTarget = state.edgePolicies.filter((candidate) => candidate.toNodeId === edge.toNodeId);
     const li = document.createElement("li");
     li.className = "need-card";
 
     const title = document.createElement("div");
     title.className = "need-card-title";
-    title.textContent = toNode.name;
+    title.textContent = `${toNode.name}`;
     li.appendChild(title);
 
     const rows = [...io.inputMap.entries()]
@@ -1184,9 +1187,13 @@ function renderTargetNeeds() {
         const mutationId = Number(mutationIdRaw);
         const required = Math.max(0, Math.ceil(Number(requiredRaw || 0)));
         const supplied = Math.max(0, Math.ceil(Number(edge.allocations?.[String(mutationId)] || 0)));
+        const suppliedByOthers = incomingToTarget
+          .filter((candidate) => candidate.fromNodeId !== edge.fromNodeId)
+          .reduce((sum, candidate) => sum + getAllocation(candidate, mutationId), 0);
+        const shortageAfterOthers = Math.max(0, required - suppliedByOthers);
         return {
           mutationId,
-          required,
+          required: shortageAfterOthers,
           supplied,
           name: state.mutationMap.get(mutationId)?.name || `#${mutationId}`,
         };
@@ -1197,7 +1204,7 @@ function renderTargetNeeds() {
     if (!rows.length) {
       const empty = document.createElement("div");
       empty.className = "need-card-empty";
-      empty.textContent = "要求素材なし";
+      empty.textContent = "他接続で充足済み";
       li.appendChild(empty);
       dom.targetNeedsList.appendChild(li);
       continue;
@@ -1210,7 +1217,7 @@ function renderTargetNeeds() {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "need-chip";
-      button.textContent = `${row.name} 要求${row.required} / 供給${row.supplied}`;
+      button.textContent = `${row.name} 要求量${row.required} / 供給量${row.supplied}`;
       button.addEventListener("click", () => focusMaterialsForMutation(row.mutationId));
       chips.appendChild(button);
     }
