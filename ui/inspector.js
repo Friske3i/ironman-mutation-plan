@@ -66,6 +66,7 @@ export function renderInspectorPanel(dom, model, handlers = {}) {
     }
     if (dom.inspectorUnconditionalList) dom.inspectorUnconditionalList.innerHTML = "";
     if (dom.inspectorAddUnconditionalBtn) dom.inspectorAddUnconditionalBtn.disabled = true;
+    if (dom.inspectorExportSkymutationBtn) dom.inspectorExportSkymutationBtn.disabled = true;
     dom.inspectorIoSection?.classList.remove("hidden");
     if (dom.inspectorEdgeSliders) dom.inspectorEdgeSliders.innerHTML = "";
     dom.inspectorEdgeSection.classList.add("hidden");
@@ -76,6 +77,9 @@ export function renderInspectorPanel(dom, model, handlers = {}) {
   dom.inspectorRepeatCount.disabled = false;
   if (dom.inspectorAddUnconditionalBtn) {
     dom.inspectorAddUnconditionalBtn.disabled = false;
+  }
+  if (dom.inspectorExportSkymutationBtn) {
+    dom.inspectorExportSkymutationBtn.disabled = false;
   }
   if (document.activeElement !== dom.inspectorRepeatCount) {
     dom.inspectorRepeatCount.value = String(model.repeatCount || 1);
@@ -125,6 +129,13 @@ export function renderInspectorPanel(dom, model, handlers = {}) {
       handlers.onToggleUnconditionalSupplyPicker?.();
     });
     dom.inspectorAddUnconditionalBtn.dataset.bound = "1";
+  }
+
+  if (dom.inspectorExportSkymutationBtn && !dom.inspectorExportSkymutationBtn.dataset.bound) {
+    dom.inspectorExportSkymutationBtn.addEventListener("click", () => {
+      handlers.onExportSkymutation?.();
+    });
+    dom.inspectorExportSkymutationBtn.dataset.bound = "1";
   }
 
   if (dom.inspectorUnconditionalPicker) {

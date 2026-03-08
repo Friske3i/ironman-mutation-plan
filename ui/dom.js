@@ -48,6 +48,7 @@ export function getDomRefs() {
     inspectorUnconditionalList: document.getElementById("inspectorUnconditionalList"),
     inspectorEditGridBtn: document.getElementById("inspectorEditGridBtn"),
     inspectorDeleteNodeBtn: document.getElementById("inspectorDeleteNodeBtn"),
+    inspectorExportSkymutationBtn: document.getElementById("inspectorExportSkymutationBtn"),
     inspectorEdgeSection: document.getElementById("inspectorEdgeSection"),
     inspectorEdgeName: document.getElementById("inspectorEdgeName"),
     inspectorEdgeHint: document.getElementById("inspectorEdgeHint"),

@@ -28,6 +28,7 @@ import {
 
 const PROJECT_FILE_VERSION = 7;
 const INITIAL_CANVAS_VIEW = { x: -2860, y: -1900, zoom: 1 };
+const SKYMUTATION_LAYOUT_URL_PREFIX = "https://skymutations.eu/greenhouse?layout=";
 
 const state = {
   mutations: [],
@@ -797,6 +798,62 @@ function removeActiveNodeUnconditionalSupply(mutationId) {
   recalcAndRenderPlan();
 }
 
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const ok = document.execCommand("copy");
+  textarea.remove();
+  if (!ok) {
+    throw new Error("clipboard_copy_failed");
+  }
+}
+
+async function exportActiveNodeToSkymutation() {
+  const active = getActiveNode();
+  if (!active) return;
+
+  const compressor = window.LZString?.compressToEncodedURIComponent;
+  if (typeof compressor !== "function") {
+    window.alert("LZStringの読み込みに失敗しました。ページを再読み込みしてください。");
+    return;
+  }
+
+  const layout = [...(active.placements || [])]
+    .map((placement) => {
+      const mutation = state.mutationMap.get(Number(placement.mutationId));
+      const name = mutation?.name || `#${placement.mutationId}`;
+      const roleCode = placement.role === "intermediate" ? 0 : 1;
+      return [
+        Math.max(0, Math.floor(Number(placement.anchorY) || 0)),
+        Math.max(0, Math.floor(Number(placement.anchorX) || 0)),
+        name,
+        roleCode,
+      ];
+    })
+    .sort((a, b) => (a[0] - b[0]) || (a[1] - b[1]) || String(a[2]).localeCompare(String(b[2])));
+
+  const json = JSON.stringify(layout);
+  const compressed = compressor(json);
+  const url = `${SKYMUTATION_LAYOUT_URL_PREFIX}${compressed}`;
+
+  try {
+    await copyTextToClipboard(url);
+    window.alert("Skymutation用URLをクリップボードにコピーしました。");
+  } catch {
+    window.alert("クリップボードへのコピーに失敗しました。ブラウザ権限を確認してください。");
+  }
+}
+
 function commitInlineEdgeRename() {
   const edge = getSelectedEdge();
   if (!edge) {
@@ -1529,6 +1586,7 @@ function renderInspector() {
     onToggleUnconditionalSupplyPicker: toggleInspectorUnconditionalSupplyPicker,
     onAddUnconditionalSupply: addActiveNodeUnconditionalSupply,
     onRemoveUnconditionalSupply: removeActiveNodeUnconditionalSupply,
+    onExportSkymutation: exportActiveNodeToSkymutation,
     onEdgeTransferInput: updateSelectedEdgeTransfer,
     onEdgeTransferCommit: commitSelectedEdgeTransfer,
   });
