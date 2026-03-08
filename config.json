@@ -44,7 +44,7 @@
     },
     {
       "id": 6,
-      "name": "Pumpkin",
+      "name": "Pumpkin Seeds",
       "size": 1,
       "image": "assets/Pumpkin.webp",
       "maxGrowthStage": 6

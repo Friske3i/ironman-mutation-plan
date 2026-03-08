@@ -829,16 +829,26 @@ async function exportActiveNodeToSkymutation() {
   }
 
   const layout = [...(active.placements || [])]
-    .map((placement) => {
+    .flatMap((placement) => {
       const mutation = state.mutationMap.get(Number(placement.mutationId));
       const name = mutation?.name || `#${placement.mutationId}`;
       const roleCode = placement.role === "intermediate" ? 0 : 1;
-      return [
-        Math.max(0, Math.floor(Number(placement.anchorY) || 0)),
-        Math.max(0, Math.floor(Number(placement.anchorX) || 0)),
-        name,
-        roleCode,
-      ];
+      const anchorY = Math.max(0, Math.floor(Number(placement.anchorY) || 0));
+      const anchorX = Math.max(0, Math.floor(Number(placement.anchorX) || 0));
+      const size = Math.max(1, Math.floor(Number(placement.size) || 1));
+      const cells = [];
+
+      for (let dy = 0; dy < size; dy += 1) {
+        for (let dx = 0; dx < size; dx += 1) {
+          cells.push([
+            anchorY + dy,
+            anchorX + dx,
+            name,
+            roleCode,
+          ]);
+        }
+      }
+      return cells;
     })
     .sort((a, b) => (a[0] - b[0]) || (a[1] - b[1]) || String(a[2]).localeCompare(String(b[2])));
 
