@@ -60,6 +60,12 @@ export function renderInspectorPanel(dom, model, handlers = {}) {
     dom.inspectorEdgeName.contentEditable = "false";
     dom.inspectorInputs.innerHTML = "";
     dom.inspectorOutputs.innerHTML = "";
+    if (dom.inspectorUnconditionalPicker) {
+      dom.inspectorUnconditionalPicker.innerHTML = "";
+      dom.inspectorUnconditionalPicker.classList.add("hidden");
+    }
+    if (dom.inspectorUnconditionalList) dom.inspectorUnconditionalList.innerHTML = "";
+    if (dom.inspectorAddUnconditionalBtn) dom.inspectorAddUnconditionalBtn.disabled = true;
     dom.inspectorIoSection?.classList.remove("hidden");
     if (dom.inspectorEdgeSliders) dom.inspectorEdgeSliders.innerHTML = "";
     dom.inspectorEdgeSection.classList.add("hidden");
@@ -68,6 +74,9 @@ export function renderInspectorPanel(dom, model, handlers = {}) {
 
   dom.inspectorNodeName.contentEditable = "true";
   dom.inspectorRepeatCount.disabled = false;
+  if (dom.inspectorAddUnconditionalBtn) {
+    dom.inspectorAddUnconditionalBtn.disabled = false;
+  }
   if (document.activeElement !== dom.inspectorRepeatCount) {
     dom.inspectorRepeatCount.value = String(model.repeatCount || 1);
   }
@@ -108,6 +117,50 @@ export function renderInspectorPanel(dom, model, handlers = {}) {
   } else {
     for (const row of outputRows) {
       dom.inspectorOutputs.appendChild(createIoBlock(row, "output"));
+    }
+  }
+
+  if (dom.inspectorAddUnconditionalBtn && !dom.inspectorAddUnconditionalBtn.dataset.bound) {
+    dom.inspectorAddUnconditionalBtn.addEventListener("click", () => {
+      handlers.onToggleUnconditionalSupplyPicker?.();
+    });
+    dom.inspectorAddUnconditionalBtn.dataset.bound = "1";
+  }
+
+  if (dom.inspectorUnconditionalPicker) {
+    dom.inspectorUnconditionalPicker.innerHTML = "";
+    dom.inspectorUnconditionalPicker.classList.toggle("hidden", !model.showUnconditionalSupplyPicker);
+
+    if (model.showUnconditionalSupplyPicker) {
+      for (const row of model.unconditionalSupplyCandidates || []) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `inspector-unconditional-item${row.enabled ? " enabled" : ""}`;
+        button.textContent = row.enabled ? `${row.name} (追加済み)` : row.name;
+        button.disabled = !!row.enabled;
+        button.addEventListener("click", () => {
+          handlers.onAddUnconditionalSupply?.(row.mutationId);
+        });
+        dom.inspectorUnconditionalPicker.appendChild(button);
+      }
+    }
+  }
+
+  if (dom.inspectorUnconditionalList) {
+    dom.inspectorUnconditionalList.innerHTML = "";
+    const selected = model.unconditionalSupplySelected || [];
+    if (!selected.length) {
+      const empty = document.createElement("div");
+      empty.className = "need-card-empty";
+      empty.textContent = "追加なし";
+      dom.inspectorUnconditionalList.appendChild(empty);
+    } else {
+      for (const row of selected) {
+        const chip = document.createElement("span");
+        chip.className = "inspector-unconditional-chip";
+        chip.textContent = row.name;
+        dom.inspectorUnconditionalList.appendChild(chip);
+      }
     }
   }
 

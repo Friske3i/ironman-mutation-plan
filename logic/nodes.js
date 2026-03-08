@@ -5,6 +5,7 @@ export function createProcessNode(nodeId, name = `Node ${nodeId}`) {
     nodeId,
     name,
     repeatCount: 1,
+    unconditionalSupplyMutationIds: [],
     placements: [],
     nextPlacementId: 1,
   };
@@ -80,6 +81,9 @@ export function computeNodeIO(node) {
   const inputMap = new Map();
   const outputMap = new Map();
   const repeatCount = Math.max(1, Math.ceil(Number(node?.repeatCount || 1)));
+  const unconditionalSupplyIds = Array.isArray(node?.unconditionalSupplyMutationIds)
+    ? node.unconditionalSupplyMutationIds
+    : [];
 
   for (const placement of node.placements) {
     const amount = 1;
@@ -89,6 +93,13 @@ export function computeNodeIO(node) {
     } else {
       outputMap.set(placement.mutationId, (outputMap.get(placement.mutationId) || 0) + amount * repeatCount);
     }
+  }
+
+  // Mutations flagged as unconditional supply are treated as always satisfied on this node.
+  for (const mutationIdRaw of unconditionalSupplyIds) {
+    const mutationId = Number(mutationIdRaw);
+    if (Number.isNaN(mutationId)) continue;
+    inputMap.delete(mutationId);
   }
 
   return { inputMap, outputMap };

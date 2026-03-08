@@ -26,7 +26,7 @@ import {
   updateModeInputs,
 } from "./ui/index.js";
 
-const PROJECT_FILE_VERSION = 6;
+const PROJECT_FILE_VERSION = 7;
 const INITIAL_CANVAS_VIEW = { x: -2860, y: -1900, zoom: 1 };
 
 const state = {
@@ -62,6 +62,7 @@ const state = {
   nodeHistory: { undo: [], redo: [] },
   gridHistory: { undo: [], redo: [] },
   isApplyingHistory: false,
+  inspectorUnconditionalPickerOpen: false,
 };
 
 const dom = getDomRefs();
@@ -158,6 +159,7 @@ function bindEvents() {
 
   dom.nodeSelect.addEventListener("change", () => {
     clearAllDemandHighlights();
+    state.inspectorUnconditionalPickerOpen = false;
     state.selectedNodeId = Number(dom.nodeSelect.value);
     state.selectedEdgeKey = null;
     refreshActiveOccupied();
@@ -395,6 +397,7 @@ function getNodeEditorSnapshot() {
   return {
     planNodes: state.planNodes.map((node) => ({
       ...node,
+      unconditionalSupplyMutationIds: [...(Array.isArray(node.unconditionalSupplyMutationIds) ? node.unconditionalSupplyMutationIds : [])],
       placements: node.placements.map((placement) => ({ ...placement })),
     })),
     edgePolicies: state.edgePolicies.map((edge) => ({ ...edge, allocations: { ...(edge.allocations || {}) } })),
@@ -419,6 +422,16 @@ function normalizePlacementRoles(planNodes) {
 function normalizeNodeRepeatCounts(planNodes) {
   for (const node of planNodes) {
     node.repeatCount = Math.max(1, Math.ceil(Number(node.repeatCount || 1)));
+  }
+}
+
+function normalizeNodeUnconditionalSupplies(planNodes) {
+  for (const node of planNodes) {
+    const raw = Array.isArray(node.unconditionalSupplyMutationIds) ? node.unconditionalSupplyMutationIds : [];
+    const normalized = [...new Set(raw
+      .map((mutationId) => Number(mutationId))
+      .filter((mutationId) => Number.isInteger(mutationId) && state.mutationMap.has(mutationId)))];
+    node.unconditionalSupplyMutationIds = normalized;
   }
 }
 
@@ -514,10 +527,12 @@ function applyNodeEditorSnapshot(snapshot) {
   state.isApplyingHistory = true;
   state.planNodes = snapshot.planNodes.map((node) => ({
     ...node,
+    unconditionalSupplyMutationIds: [...(Array.isArray(node.unconditionalSupplyMutationIds) ? node.unconditionalSupplyMutationIds : [])],
     placements: node.placements.map((placement) => ({ ...placement })),
   }));
   normalizePlacementRoles(state.planNodes);
   normalizeNodeRepeatCounts(state.planNodes);
+  normalizeNodeUnconditionalSupplies(state.planNodes);
   state.edgePolicies = normalizeEdgePolicies(snapshot.edgePolicies);
   enforceSourceSupplyCaps();
   state.nodePositions = Object.fromEntries(Object.entries(snapshot.nodePositions || {}).map(([key, value]) => [key, { ...value }]));
@@ -526,6 +541,7 @@ function applyNodeEditorSnapshot(snapshot) {
   state.nextNodeId = snapshot.nextNodeId;
   state.canvasView = { ...(snapshot.canvasView || INITIAL_CANVAS_VIEW) };
   state.pendingEdgeFromNodeId = snapshot.pendingEdgeFromNodeId ?? null;
+  state.inspectorUnconditionalPickerOpen = false;
   state.planNodes.forEach((node) => rebuildNodeMeta(node));
 
   if (!state.planNodes.length) {
@@ -729,6 +745,37 @@ function updateActiveNodeRepeatCount(nextRepeatCount) {
   renderEdgeList(state, dom, edgeHandlers);
   renderNodeCanvas(state, dom, nodeCanvasHandlers);
   renderInspector();
+  recalcAndRenderPlan();
+}
+
+function toggleInspectorUnconditionalSupplyPicker() {
+  const active = getActiveNode();
+  if (!active) return;
+  state.inspectorUnconditionalPickerOpen = !state.inspectorUnconditionalPickerOpen;
+  renderInspector();
+}
+
+function addActiveNodeUnconditionalSupply(mutationId) {
+  const active = getActiveNode();
+  if (!active) return;
+  const normalized = Number(mutationId);
+  if (!Number.isInteger(normalized) || !state.mutationMap.has(normalized)) return;
+
+  if (!Array.isArray(active.unconditionalSupplyMutationIds)) {
+    active.unconditionalSupplyMutationIds = [];
+  }
+  if (active.unconditionalSupplyMutationIds.includes(normalized)) {
+    state.inspectorUnconditionalPickerOpen = false;
+    renderInspector();
+    return;
+  }
+
+  recordNodeHistory();
+  active.unconditionalSupplyMutationIds.push(normalized);
+  normalizeNodeUnconditionalSupplies([active]);
+  state.inspectorUnconditionalPickerOpen = false;
+
+  renderNodeCanvas(state, dom, nodeCanvasHandlers);
   recalcAndRenderPlan();
 }
 
@@ -1009,6 +1056,7 @@ const nodeCanvasHandlers = {
   },
   onSelectNode(nodeId) {
     clearAllDemandHighlights();
+    state.inspectorUnconditionalPickerOpen = false;
     state.selectedNodeId = nodeId;
     state.selectedEdgeKey = null;
     state.pendingEdgeFromNodeId = null;
@@ -1420,6 +1468,26 @@ function renderInspector() {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const selectedEdge = getSelectedEdge();
+  const selectedUnconditionalIds = [...new Set(
+    (Array.isArray(active.unconditionalSupplyMutationIds) ? active.unconditionalSupplyMutationIds : [])
+      .map((mutationId) => Number(mutationId))
+      .filter((mutationId) => Number.isInteger(mutationId) && state.mutationMap.has(mutationId))
+  )];
+  const selectedUnconditionalIdSet = new Set(selectedUnconditionalIds);
+  const unconditionalSupplyCandidates = state.mutations
+    .map((mutation) => ({
+      mutationId: mutation.id,
+      name: mutation.name,
+      enabled: selectedUnconditionalIdSet.has(mutation.id),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const unconditionalSupplySelected = selectedUnconditionalIds
+    .map((mutationId) => ({
+      mutationId,
+      name: state.mutationMap.get(mutationId)?.name || `#${mutationId}`,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
   const edgeModel = selectedEdge
     ? {
         edgeName: selectedEdge.name || getDefaultEdgeName(selectedEdge.fromNodeId, selectedEdge.toNodeId),
@@ -1434,9 +1502,14 @@ function renderInspector() {
     repeatCount: active.repeatCount || 1,
     inputs,
     outputs,
+    unconditionalSupplyCandidates,
+    unconditionalSupplySelected,
+    showUnconditionalSupplyPicker: state.inspectorUnconditionalPickerOpen,
     selectedEdge: edgeModel,
   }, {
     onNodeRepeatChange: updateActiveNodeRepeatCount,
+    onToggleUnconditionalSupplyPicker: toggleInspectorUnconditionalSupplyPicker,
+    onAddUnconditionalSupply: addActiveNodeUnconditionalSupply,
     onEdgeTransferInput: updateSelectedEdgeTransfer,
     onEdgeTransferCommit: commitSelectedEdgeTransfer,
   });
@@ -1491,6 +1564,7 @@ function restoreProjectFromData(data) {
   state.planNodes = Array.isArray(data.planNodes) ? data.planNodes : [];
   normalizePlacementRoles(state.planNodes);
   normalizeNodeRepeatCounts(state.planNodes);
+  normalizeNodeUnconditionalSupplies(state.planNodes);
   state.planNodes.forEach((node) => rebuildNodeMeta(node));
   state.edgePolicies = normalizeEdgePolicies(Array.isArray(data.edgePolicies) ? data.edgePolicies : []);
   enforceSourceSupplyCaps();
@@ -1516,6 +1590,7 @@ function restoreProjectFromData(data) {
   }
   state.selectedEdgeKey = null;
   state.pendingEdgeFromNodeId = null;
+  state.inspectorUnconditionalPickerOpen = false;
   state.gridDraft = null;
   state.paletteFocusSourceId = null;
   state.paletteFocusedMutationIds = new Set();
@@ -1552,6 +1627,7 @@ function resetPlan() {
   state.mode = "place";
   state.canvasView = { ...INITIAL_CANVAS_VIEW };
   state.pendingEdgeFromNodeId = null;
+  state.inspectorUnconditionalPickerOpen = false;
   state.gridDraft = null;
   state.paletteFocusSourceId = null;
   state.paletteFocusedMutationIds = new Set();
