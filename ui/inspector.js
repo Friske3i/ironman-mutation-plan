@@ -156,9 +156,14 @@ export function renderInspectorPanel(dom, model, handlers = {}) {
       dom.inspectorUnconditionalList.appendChild(empty);
     } else {
       for (const row of selected) {
-        const chip = document.createElement("span");
+        const chip = document.createElement("button");
+        chip.type = "button";
         chip.className = "inspector-unconditional-chip";
-        chip.textContent = row.name;
+        chip.textContent = `${row.name} ×`;
+        chip.title = "クリックで解除";
+        chip.addEventListener("click", () => {
+          handlers.onRemoveUnconditionalSupply?.(row.mutationId);
+        });
         dom.inspectorUnconditionalList.appendChild(chip);
       }
     }

@@ -779,6 +779,24 @@ function addActiveNodeUnconditionalSupply(mutationId) {
   recalcAndRenderPlan();
 }
 
+function removeActiveNodeUnconditionalSupply(mutationId) {
+  const active = getActiveNode();
+  if (!active) return;
+  const normalized = Number(mutationId);
+  if (!Number.isInteger(normalized)) return;
+  if (!Array.isArray(active.unconditionalSupplyMutationIds)) {
+    active.unconditionalSupplyMutationIds = [];
+  }
+  if (!active.unconditionalSupplyMutationIds.includes(normalized)) return;
+
+  recordNodeHistory();
+  active.unconditionalSupplyMutationIds = active.unconditionalSupplyMutationIds.filter((id) => Number(id) !== normalized);
+  normalizeNodeUnconditionalSupplies([active]);
+
+  renderNodeCanvas(state, dom, nodeCanvasHandlers);
+  recalcAndRenderPlan();
+}
+
 function commitInlineEdgeRename() {
   const edge = getSelectedEdge();
   if (!edge) {
@@ -1510,6 +1528,7 @@ function renderInspector() {
     onNodeRepeatChange: updateActiveNodeRepeatCount,
     onToggleUnconditionalSupplyPicker: toggleInspectorUnconditionalSupplyPicker,
     onAddUnconditionalSupply: addActiveNodeUnconditionalSupply,
+    onRemoveUnconditionalSupply: removeActiveNodeUnconditionalSupply,
     onEdgeTransferInput: updateSelectedEdgeTransfer,
     onEdgeTransferCommit: commitSelectedEdgeTransfer,
   });

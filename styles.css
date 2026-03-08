@@ -846,6 +846,13 @@ select:focus {
   color: #dcfce7;
   font-size: 11px;
   padding: 4px 8px;
+  cursor: pointer;
+}
+
+.inspector-unconditional-chip:hover {
+  border-color: rgba(248, 113, 113, 0.75);
+  background: rgba(239, 68, 68, 0.2);
+  color: #fee2e2;
 }
 
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
