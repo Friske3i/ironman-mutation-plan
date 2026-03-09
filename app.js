@@ -1638,7 +1638,8 @@ async function handleProjectFileSelected(event) {
     const raw = await file.text();
     const data = JSON.parse(raw);
     restoreProjectFromData(data);
-  } catch {
+  } catch (error) {
+    console.error("[loadPlan] failed", error);
     window.alert("プロジェクトファイルの読み込みに失敗しました。JSON形式を確認してください。");
   }
 }
@@ -1657,7 +1658,9 @@ function restoreProjectFromData(data) {
   enforceSourceSupplyCaps();
   state.nodePositions = data.nodePositions && typeof data.nodePositions === "object" ? data.nodePositions : {};
   state.canvasView = data.canvasView && typeof data.canvasView === "object" ? data.canvasView : { ...INITIAL_CANVAS_VIEW };
-  if (typeof state.canvasView.x === "number" && typeof state.canvasView.y === "number") {
+  const loadedVersion = Number(data?.version || 0);
+  const shouldMigrateLegacyCanvas = !Number.isFinite(loadedVersion) || loadedVersion <= 4;
+  if (shouldMigrateLegacyCanvas && typeof state.canvasView.x === "number" && typeof state.canvasView.y === "number") {
     if (state.canvasView.x > -1000 && state.canvasView.y > -700) {
       state.canvasView = {
         x: state.canvasView.x - 3000,
