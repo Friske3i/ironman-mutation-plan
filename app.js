@@ -29,6 +29,7 @@ import {
 const PROJECT_FILE_VERSION = 7;
 const INITIAL_CANVAS_VIEW = { x: -2860, y: -1900, zoom: 1 };
 const SKYMUTATION_LAYOUT_URL_PREFIX = "https://skymutations.eu/greenhouse?layout=";
+const CROSS_TAB_NODE_COPY_STORAGE_KEY = "ironmanMutationPlanner.copiedNodeTemplate.v1";
 
 const state = {
   mutations: [],
@@ -394,15 +395,75 @@ function buildNodeTemplateFromNode(node) {
   };
 }
 
+function normalizeNodeTemplate(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const placements = Array.isArray(raw.placements) ? raw.placements : [];
+  return {
+    name: String(raw.name || ""),
+    repeatCount: Math.max(1, Math.ceil(Number(raw.repeatCount || 1))),
+    unconditionalSupplyMutationIds: [...new Set(
+      (Array.isArray(raw.unconditionalSupplyMutationIds) ? raw.unconditionalSupplyMutationIds : [])
+        .map((mutationId) => Number(mutationId))
+        .filter((mutationId) => Number.isInteger(mutationId))
+    )],
+    placements: placements
+      .map((placement) => ({
+        mutationId: Number(placement?.mutationId),
+        anchorX: Math.max(0, Math.floor(Number(placement?.anchorX) || 0)),
+        anchorY: Math.max(0, Math.floor(Number(placement?.anchorY) || 0)),
+        size: Math.max(1, Math.floor(Number(placement?.size) || 1)),
+        role: placement?.role === "material" ? "material" : "intermediate",
+      }))
+      .filter((placement) => Number.isInteger(placement.mutationId)),
+  };
+}
+
+function saveCopiedNodeTemplateToStorage(template) {
+  try {
+    if (!template) {
+      window.localStorage.removeItem(CROSS_TAB_NODE_COPY_STORAGE_KEY);
+      return;
+    }
+    const payload = {
+      copiedAt: Date.now(),
+      template,
+    };
+    window.localStorage.setItem(CROSS_TAB_NODE_COPY_STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    // Ignore storage errors (private mode/quota/security) and keep in-tab behavior.
+  }
+}
+
+function loadCopiedNodeTemplateFromStorage() {
+  try {
+    const raw = window.localStorage.getItem(CROSS_TAB_NODE_COPY_STORAGE_KEY);
+    if (!raw) return null;
+    const payload = JSON.parse(raw);
+    return normalizeNodeTemplate(payload?.template);
+  } catch {
+    return null;
+  }
+}
+
+function getBestAvailableCopiedNodeTemplate() {
+  const fromStorage = loadCopiedNodeTemplateFromStorage();
+  if (fromStorage) return fromStorage;
+  return normalizeNodeTemplate(state.copiedNodeTemplate);
+}
+
 function copyActiveNodeToTemplate() {
   const active = getActiveNode();
   if (!active) return;
-  state.copiedNodeTemplate = buildNodeTemplateFromNode(active);
+  const template = buildNodeTemplateFromNode(active);
+  state.copiedNodeTemplate = template;
+  saveCopiedNodeTemplateToStorage(template);
 }
 
 function pasteCopiedNodeTemplate() {
-  const template = state.copiedNodeTemplate;
+  const template = getBestAvailableCopiedNodeTemplate();
   if (!template) return;
+
+  state.copiedNodeTemplate = template;
 
   recordNodeHistory();
 
