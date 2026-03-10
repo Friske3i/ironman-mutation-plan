@@ -64,6 +64,7 @@ const state = {
   gridHistory: { undo: [], redo: [] },
   isApplyingHistory: false,
   inspectorUnconditionalPickerOpen: false,
+  copiedNodeTemplate: null,
 };
 
 const dom = getDomRefs();
@@ -212,6 +213,18 @@ function bindEvents() {
 
     if (typing) return;
 
+    if (withCtrlOrMeta && key === "c") {
+      event.preventDefault();
+      copyActiveNodeToTemplate();
+      return;
+    }
+
+    if (withCtrlOrMeta && key === "v") {
+      event.preventDefault();
+      pasteCopiedNodeTemplate();
+      return;
+    }
+
     if (key === "r") {
       event.preventDefault();
       focusByHoveredMutation("requirements");
@@ -347,14 +360,82 @@ function createNode(name, options = {}) {
   const node = createProcessNode(nodeId, name || `Node ${nodeId}`);
   state.planNodes.push(node);
   state.selectedNodeId = nodeId;
-  state.nodePositions[nodeId] = state.nodePositions[nodeId] || {
-    x: 120 + ((nodeId - 1) % 4) * 220,
-    y: 120 + Math.floor((nodeId - 1) / 4) * 220,
-  };
+  state.nodePositions[nodeId] = state.nodePositions[nodeId] || getDefaultNodePosition(nodeId);
 
   refreshActiveOccupied();
   populateNodeControls(state, dom);
   renderActiveNodeInfo(state, dom);
+  renderNodeCanvas(state, dom, nodeCanvasHandlers);
+  renderEdgeList(state, dom, edgeHandlers);
+  renderInspector();
+  recalcAndRenderPlan();
+}
+
+function getDefaultNodePosition(nodeId) {
+  return {
+    x: 120 + ((nodeId - 1) % 4) * 220,
+    y: 120 + Math.floor((nodeId - 1) / 4) * 220,
+  };
+}
+
+function buildNodeTemplateFromNode(node) {
+  if (!node) return null;
+  return {
+    name: node.name || "",
+    repeatCount: Math.max(1, Math.ceil(Number(node.repeatCount || 1))),
+    unconditionalSupplyMutationIds: [...(Array.isArray(node.unconditionalSupplyMutationIds) ? node.unconditionalSupplyMutationIds : [])],
+    placements: (node.placements || []).map((placement) => ({
+      mutationId: Number(placement.mutationId),
+      anchorX: Math.max(0, Math.floor(Number(placement.anchorX) || 0)),
+      anchorY: Math.max(0, Math.floor(Number(placement.anchorY) || 0)),
+      size: Math.max(1, Math.floor(Number(placement.size) || 1)),
+      role: placement.role === "material" ? "material" : "intermediate",
+    })),
+  };
+}
+
+function copyActiveNodeToTemplate() {
+  const active = getActiveNode();
+  if (!active) return;
+  state.copiedNodeTemplate = buildNodeTemplateFromNode(active);
+}
+
+function pasteCopiedNodeTemplate() {
+  const template = state.copiedNodeTemplate;
+  if (!template) return;
+
+  recordNodeHistory();
+
+  const nodeId = state.nextNodeId++;
+  const nodeName = template.name ? `${template.name} copy` : `Node ${nodeId}`;
+  const node = createProcessNode(nodeId, nodeName);
+  node.repeatCount = Math.max(1, Math.ceil(Number(template.repeatCount || 1)));
+  node.unconditionalSupplyMutationIds = [...new Set(
+    (template.unconditionalSupplyMutationIds || [])
+      .map((mutationId) => Number(mutationId))
+      .filter((mutationId) => Number.isInteger(mutationId) && state.mutationMap.has(mutationId))
+  )];
+  node.placements = (template.placements || []).map((placement, index) => ({
+    placementId: index + 1,
+    mutationId: Number(placement.mutationId),
+    anchorX: Math.max(0, Math.floor(Number(placement.anchorX) || 0)),
+    anchorY: Math.max(0, Math.floor(Number(placement.anchorY) || 0)),
+    size: Math.max(1, Math.floor(Number(placement.size) || 1)),
+    role: placement.role === "material" ? "material" : "intermediate",
+  }));
+  node.nextPlacementId = node.placements.length + 1;
+
+  state.planNodes.push(node);
+  state.selectedNodeId = nodeId;
+  state.selectedEdgeKey = null;
+  state.pendingEdgeFromNodeId = null;
+  state.inspectorUnconditionalPickerOpen = false;
+  state.nodePositions[nodeId] = getDefaultNodePosition(nodeId);
+
+  refreshActiveOccupied();
+  populateNodeControls(state, dom);
+  renderActiveNodeInfo(state, dom);
+  renderGridCells(state, dom, getPlacementAt);
   renderNodeCanvas(state, dom, nodeCanvasHandlers);
   renderEdgeList(state, dom, edgeHandlers);
   renderInspector();
@@ -1681,6 +1762,7 @@ function restoreProjectFromData(data) {
   state.selectedEdgeKey = null;
   state.pendingEdgeFromNodeId = null;
   state.inspectorUnconditionalPickerOpen = false;
+  state.copiedNodeTemplate = null;
   state.gridDraft = null;
   state.paletteFocusSourceId = null;
   state.paletteFocusedMutationIds = new Set();
@@ -1718,6 +1800,7 @@ function resetPlan() {
   state.canvasView = { ...INITIAL_CANVAS_VIEW };
   state.pendingEdgeFromNodeId = null;
   state.inspectorUnconditionalPickerOpen = false;
+  state.copiedNodeTemplate = null;
   state.gridDraft = null;
   state.paletteFocusSourceId = null;
   state.paletteFocusedMutationIds = new Set();
